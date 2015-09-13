@@ -24,7 +24,7 @@ public class TicTacToe {
 
 	public Instances returnTrainingSet() throws Exception {
 		//String dir = System.getProperty("user.dir") + "chess_king_rook_king_pawn_training.arff";
-		URL path = ChessSet.class.getResource("tictactoe_training.arff");
+		URL path = TicTacToe.class.getResource("tictactoe_training.arff");
 		File f = new File(path.getFile());
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		Instances data = new Instances(reader);
@@ -36,7 +36,7 @@ public class TicTacToe {
 
 	public Instances returnTestSet() throws Exception {
 		//String dir = System.getProperty("user.dir") + "chess_king_rook_king_pawn_test.arff";
-		URL path = ChessSet.class.getResource("tictactoe_pawn_test.arff");
+		URL path = TicTacToe.class.getResource("tictactoe_test.arff");
 		File f = new File(path.getFile());
 		BufferedReader reader = new BufferedReader(new FileReader(f));
 		Instances data = new Instances(reader);
@@ -255,16 +255,19 @@ public class TicTacToe {
 
 	}
 
+	public void decisionTreeNodeChanger(){
+		
+	}
+	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-		ChessSet cs = new ChessSet();
+		TicTacToe cs = new TicTacToe();
 		cs.DecisionTreeTraining();
 		cs.ANNTraining();
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();
 		cs.boosting();
-
 	}
 
 }

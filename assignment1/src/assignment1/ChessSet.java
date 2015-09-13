@@ -15,6 +15,7 @@ import weka.classifiers.functions.supportVector.RBFKernel;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
+import weka.core.Debug.Random;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.filters.Filter;
@@ -44,6 +45,15 @@ public class ChessSet {
 		// setting class attribute
 		data.setClassIndex(data.numAttributes() - 1);
 		return data;
+	}
+	
+	public double returnCrossVal(Classifier cls) throws Exception{
+		Instances train = returnTrainingSet();
+		cls.buildClassifier(train);
+		Evaluation eval = new Evaluation(train);
+		eval.crossValidateModel(cls, train, 10, new Random(1));
+		//PrintWriter out = new PrintWriter("Comp" + "DecTreeTrainingFPR.dat");
+		return eval.falsePositiveRate(0);
 	}
 	
 	public void DecisionTreeTraining() throws Exception {
@@ -254,16 +264,44 @@ public class ChessSet {
 		return newData;
 
 	}
+	
+	public void decisionTreeNodeChanger() throws Exception{
+		//PrintWriter out = new PrintWriter("SMORBFTrainingFPR.dat");
+		double[] treeSize = new double[10];
+		Instances train = returnTrainingSet();
+		J48 cls = new J48();
+		String[] options = new String[2];
+		options[0] = "-M";
+	
+		PrintWriter out = new PrintWriter("CompDecTreeTrainingFPR.dat");
+		for (int i=1; i<10; i++){
+			Integer j = new Integer(i*3);
+			options[1] = j.toString();
+			cls.setOptions(options);
+			cls.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(cls, train);
+			//treeSize[i-1] = cls.measureTreeSize();
+			out.println(cls.measureTreeSize() + "\t" + eval.falsePositiveRate(0));			
+		}
+		out.close();
+		
+		out = new PrintWriter("CompDecTreeTestFPR.dat");
+		for (int i=1; i<10; i++){
+			
+		}
+		
+	}
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ChessSet cs = new ChessSet();
-		cs.DecisionTreeTraining();
-		cs.ANNTraining();
-		cs.IBKTraining();
-		cs.SMOTrainingPolyKernel();
-		cs.SMOTrainingRBFKernel();
-		cs.boosting();
+		//cs.DecisionTreeTraining();
+		//cs.ANNTraining();
+		//cs.IBKTraining();
+		//cs.SMOTrainingPolyKernel();
+		//cs.SMOTrainingRBFKernel();
+		//cs.boosting();
 
 	}
 
