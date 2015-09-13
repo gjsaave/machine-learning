@@ -8,8 +8,13 @@ import java.net.URL;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.MultilayerPerceptron;
+import weka.classifiers.functions.SMO;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
@@ -39,58 +44,194 @@ public class ChessSet {
 		return data;
 	}
 	
-	public void FPRDecisionTreeTraining() throws Exception {
+	public void DecisionTreeTraining() throws Exception {
 		Instances train = returnTrainingSet();
 		Instances test = returnTestSet();
 		// train classifier
 		Classifier cls = new J48();
-		PrintWriter out = new PrintWriter("TrainingFPR.dat");
+		PrintWriter out = new PrintWriter("DecTreeTrainingFPR.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
-			Instances newData = setPercentDecisionTree(train, i);
+			Instances newData = setPercent(train, i);
 			cls.buildClassifier(newData);
 			Evaluation eval = new Evaluation(newData);
 			eval.evaluateModel(cls, newData);
-			out.println(index + "\t" + eval.falsePositiveRate(0));
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
 		
-		out = new PrintWriter("TestFPR.dat");
+		out = new PrintWriter("DecTreeTestFPR.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
-			Instances newData = setPercentDecisionTree(train, i);
+			Instances newData = setPercent(train, i);
 			cls.buildClassifier(newData);
 			Evaluation eval = new Evaluation(newData);
 			eval.evaluateModel(cls, test);
-			out.println(index + "\t" + eval.falsePositiveRate(0));
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
 
-		out = new PrintWriter("TrainingFNR.dat");
+		out = new PrintWriter("DecTreeTrainingFNR.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
-			Instances newData = setPercentDecisionTree(train, i);
+			Instances newData = setPercent(train, i);
 			cls.buildClassifier(newData);
 			Evaluation eval = new Evaluation(newData);
 			eval.evaluateModel(cls, newData);
-			out.println(index + "\t" + eval.falseNegativeRate(0));
+			out.println(index*10 + "\t" + eval.falseNegativeRate(0));
 		}
 		out.close();
 
-		out = new PrintWriter("TestFNR.dat");
+		out = new PrintWriter("DecTreeTestFNR.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
-			Instances newData = setPercentDecisionTree(train, i);
+			Instances newData = setPercent(train, i);
 			cls.buildClassifier(newData);
 			Evaluation eval = new Evaluation(newData);
 			eval.evaluateModel(cls, test);
-			out.println(index + "\t" + eval.falseNegativeRate(0));
+			out.println(index*10 + "\t" + eval.falseNegativeRate(0));
 		}
 		out.close();	
 	}
 	
+	public void ANNTraining() throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
+		mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -N 100 -V 0 -S 0 -E 20 -H 2"));
+		PrintWriter out = new PrintWriter("ANNTrainingFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			mlp.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(mlp, newData);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+		
+		out = new PrintWriter("ANNTestFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			mlp.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(mlp, test);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+	}
 	
-	public Instances setPercentDecisionTree(Instances train, int removeAmount) throws Exception {
+	public void IBKTraining() throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		IBk ibk = new IBk(3);
+		PrintWriter out = new PrintWriter("IBKTrainingFPR.dat");
+		for (int i=10; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			ibk.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(ibk, newData);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+		out = new PrintWriter("IBKTestFPR.dat");
+		for (int i=10; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			ibk.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(ibk, test);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+	}
+	
+	public void SMOTrainingPolyKernel() throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		SMO smo = new SMO();
+		PrintWriter out = new PrintWriter("SMOTrainingFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			smo.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(smo, newData);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+		out = new PrintWriter("SMOTestFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			smo.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(smo, test);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+	}
+	
+	public void SMOTrainingRBFKernel() throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		SMO smo = new SMO();
+		smo.setKernel(new weka.classifiers.functions.supportVector.RBFKernel());
+		PrintWriter out = new PrintWriter("SMORBFTrainingFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			smo.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(smo, newData);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+		out = new PrintWriter("SMORBFTestFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			smo.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(smo, test);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+	}
+	
+	public void boosting() throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		AdaBoostM1 ada = new AdaBoostM1();
+		String[] options = new String[2];
+		options[0] = "-W";
+		options[1] = "weka.classifiers.trees.J48";
+		ada.setOptions(options);
+		PrintWriter out = new PrintWriter("ADATrainingFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			ada.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(ada, newData);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+		out = new PrintWriter("ADATestFPR.dat");
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			ada.buildClassifier(newData); 
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(ada, test);
+			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
+		}
+		out.close();
+	}
+	
+	public Instances setPercent(Instances train, int removeAmount) throws Exception {
 		// Evaluation eval = decisionTree();
 		RemovePercentage remove = new RemovePercentage();
 		// System.out.println("Training FPR");
@@ -104,7 +245,12 @@ public class ChessSet {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ChessSet cs = new ChessSet();
-		cs.FPRDecisionTreeTraining();
+		//cs.DecisionTreeTraining();
+		//cs.ANNTraining();
+		//cs.IBKTraining();
+		//cs.SMOTrainingPolyKernel();
+		//cs.SMOTrainingRBFKernel();
+		cs.boosting();
 
 	}
 
