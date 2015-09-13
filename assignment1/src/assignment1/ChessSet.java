@@ -10,6 +10,8 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.SMO;
+import weka.classifiers.functions.supportVector.PolyKernel;
+import weka.classifiers.functions.supportVector.RBFKernel;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
@@ -152,6 +154,12 @@ public class ChessSet {
 		Instances train = returnTrainingSet();
 		Instances test = returnTestSet();
 		SMO smo = new SMO();
+		PolyKernel poly = new PolyKernel();
+		String[] options = new String[2];
+		options[0] = "-E";
+		options[1] = "5";
+		poly.setOptions(options);
+		smo.setKernel(poly);
 		PrintWriter out = new PrintWriter("SMOTrainingFPR.dat");
 		for (int i=9; i>-1; i--){
 			int index = 10-i;
@@ -178,7 +186,12 @@ public class ChessSet {
 		Instances train = returnTrainingSet();
 		Instances test = returnTestSet();
 		SMO smo = new SMO();
-		smo.setKernel(new weka.classifiers.functions.supportVector.RBFKernel());
+		RBFKernel rbf = new RBFKernel();
+		String[] options = new String[2];
+		options[0] = "-G";
+		options[1] = "0.5";
+		rbf.setOptions(options);
+		smo.setKernel(rbf);	
 		PrintWriter out = new PrintWriter("SMORBFTrainingFPR.dat");
 		for (int i=9; i>-1; i--){
 			int index = 10-i;
@@ -245,11 +258,11 @@ public class ChessSet {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ChessSet cs = new ChessSet();
-		//cs.DecisionTreeTraining();
-		//cs.ANNTraining();
-		//cs.IBKTraining();
-		//cs.SMOTrainingPolyKernel();
-		//cs.SMOTrainingRBFKernel();
+		cs.DecisionTreeTraining();
+		cs.ANNTraining();
+		cs.IBKTraining();
+		cs.SMOTrainingPolyKernel();
+		cs.SMOTrainingRBFKernel();
 		cs.boosting();
 
 	}
