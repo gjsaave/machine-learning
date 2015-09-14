@@ -289,9 +289,9 @@ public class ChessSet {
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cls, train);
 			Evaluation crossEval = returnCrossVal(cls);
-			crossEval.evaluateModel(cls, train);
 	
 			if (prevTreeSize != cls.measureTreeSize()){
+				System.out.println("got in");
 				treeSize[count] = cls.measureTreeSize();
 				FPR[count] = eval.falsePositiveRate(0);
 				FPRCrossEval[count] = crossEval.falsePositiveRate(0);
@@ -314,6 +314,49 @@ public class ChessSet {
 			}	
 		}			
 	}
+	
+	public void changeKForIBK() throws Exception{
+		Integer j = new Integer(0);
+		Instances train = returnTrainingSet();
+		String[] options = new String[2];
+		IBk ibk = new IBk();
+		PrintWriter out = new PrintWriter("CompIBKTrainingFPR.dat");
+		PrintWriter outCross = new PrintWriter("CompIBKTestFPR.dat");
+
+		for (int i=1; i<6; i++){
+			j = i;
+			options[0] = "-K";
+			options[1] = j.toString();
+			ibk.setOptions(options);
+			ibk.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(ibk, train);
+			Evaluation crossEval = returnCrossVal(ibk);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+		}
+		out.close();
+		outCross.close();
+	}
+	
+	public void changeHiddenLayersANN()  throws Exception{
+		Instances train = returnTrainingSet();
+		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
+		PrintWriter out = new PrintWriter("CompANNTrainingFPR.dat");
+		PrintWriter outCross = new PrintWriter("CompANNTestFPR.dat");
+		for (int i=0; i<10; i++){
+			mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -N 100 -V 0 -S 0 -E 20 -H " + i));
+			mlp.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(mlp, train);
+			Evaluation crossEval = returnCrossVal(mlp);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			
+		}
+		out.close();
+		outCross.close();
+	}
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
@@ -324,7 +367,11 @@ public class ChessSet {
 		//cs.SMOTrainingPolyKernel();
 		//cs.SMOTrainingRBFKernel();
 		//cs.boosting();
-		cs.decisionTreeNodeChanger();
+		
+		//stuff below this is for complexity model
+		//cs.decisionTreeNodeChanger();
+		//cs.changeKForIBK();
+		cs.changeHiddenLayersANN();
 
 	}
 
