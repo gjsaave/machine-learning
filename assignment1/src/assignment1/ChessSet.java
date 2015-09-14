@@ -323,7 +323,7 @@ public class ChessSet {
 		PrintWriter out = new PrintWriter("CompIBKTrainingFPR.dat");
 		PrintWriter outCross = new PrintWriter("CompIBKTestFPR.dat");
 
-		for (int i=1; i<6; i++){
+		for (int i=1; i<10; i++){
 			j = i;
 			options[0] = "-K";
 			options[1] = j.toString();
