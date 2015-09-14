@@ -47,13 +47,14 @@ public class ChessSet {
 		return data;
 	}
 	
-	public double returnCrossVal(Classifier cls) throws Exception{
+	public Evaluation returnCrossVal(Classifier cls) throws Exception{
 		Instances train = returnTrainingSet();
 		cls.buildClassifier(train);
 		Evaluation eval = new Evaluation(train);
 		eval.crossValidateModel(cls, train, 10, new Random(1));
 		//PrintWriter out = new PrintWriter("Comp" + "DecTreeTrainingFPR.dat");
-		return eval.falsePositiveRate(0);
+		//return eval.falsePositiveRate(0);
+		return eval;
 	}
 	
 	public void DecisionTreeTraining() throws Exception {
@@ -268,29 +269,50 @@ public class ChessSet {
 	public void decisionTreeNodeChanger() throws Exception{
 		//PrintWriter out = new PrintWriter("SMORBFTrainingFPR.dat");
 		double[] treeSize = new double[10];
+		double prevTreeSize = 0;
+		int count = 0;
+		double[] FPR = new double[10];
+		double[] FPRCrossEval = new double[10];
+		boolean done = false;
+		Integer j = new Integer(0);
 		Instances train = returnTrainingSet();
 		J48 cls = new J48();
 		String[] options = new String[2];
-		options[0] = "-M";
-	
-		PrintWriter out = new PrintWriter("CompDecTreeTrainingFPR.dat");
-		for (int i=1; i<10; i++){
-			Integer j = new Integer(i*3);
+		
+		while(count<10){
+			j=j+4;
+			options[0] = "-M";
 			options[1] = j.toString();
+			System.out.println(options[1]);
 			cls.setOptions(options);
 			cls.buildClassifier(train); 
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cls, train);
-			//treeSize[i-1] = cls.measureTreeSize();
-			out.println(cls.measureTreeSize() + "\t" + eval.falsePositiveRate(0));			
-		}
-		out.close();
-		
-		out = new PrintWriter("CompDecTreeTestFPR.dat");
-		for (int i=1; i<10; i++){
+			Evaluation crossEval = returnCrossVal(cls);
+			crossEval.evaluateModel(cls, train);
+	
+			if (prevTreeSize != cls.measureTreeSize()){
+				treeSize[count] = cls.measureTreeSize();
+				FPR[count] = eval.falsePositiveRate(0);
+				FPRCrossEval[count] = crossEval.falsePositiveRate(0);
+				prevTreeSize = cls.measureTreeSize();
+				count++;
+			}
 			
-		}
-		
+			if (count == 9 && !done){
+				PrintWriter out = new PrintWriter("CompDecTreeTrainingFPR.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FPR[i]);
+				}
+				out.close();
+				out = new PrintWriter("CompDecTreeTestFPR.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FPRCrossEval[i]);
+				}
+				out.close();
+				done = true;
+			}	
+		}			
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -302,6 +324,7 @@ public class ChessSet {
 		//cs.SMOTrainingPolyKernel();
 		//cs.SMOTrainingRBFKernel();
 		//cs.boosting();
+		cs.decisionTreeNodeChanger();
 
 	}
 
