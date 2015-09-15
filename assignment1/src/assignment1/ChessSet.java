@@ -57,6 +57,31 @@ public class ChessSet {
 		return eval;
 	}
 	
+	public void outputFNRForTestSetToFile(PrintWriter out, Classifier cls, int iter) throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			cls.buildClassifier(newData);
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(cls, test);
+			out.println(index*10 + "\t" + eval.falseNegativeRate(0));
+		}
+	}
+	
+	public void outputFNRForTrainingSetToFile(PrintWriter out, Classifier cls, int iter) throws Exception {
+		for (int i = iter; i > -1; i--) {
+			Instances train = returnTrainingSet();
+			int index = 10 - i;
+			Instances newData = setPercent(train, i);
+			cls.buildClassifier(newData);
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(cls, newData);
+			out.println(index * 10 + "\t" + eval.falseNegativeRate(0));
+		}
+	}
+	
 	public void DecisionTreeTraining() throws Exception {
 		Instances train = returnTrainingSet();
 		Instances test = returnTestSet();
@@ -133,6 +158,15 @@ public class ChessSet {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		
+		out = new PrintWriter("ANNTrainingFNR.dat");
+		outputFNRForTrainingSetToFile(out, mlp, 9);
+		out.close();
+		
+		out = new PrintWriter("ANNTestFNR.dat");
+		outputFNRForTestSetToFile(out, mlp, 9);
+		out.close();
+		
 	}
 	
 	public void IBKTraining() throws Exception{
@@ -158,6 +192,14 @@ public class ChessSet {
 			eval.evaluateModel(ibk, test);
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
+		out.close();
+		
+		out = new PrintWriter("IBKTrainingFNR.dat");
+		outputFNRForTrainingSetToFile(out, ibk, 10);
+		out.close();
+		
+		out = new PrintWriter("IBKTestFNR.dat");
+		outputFNRForTestSetToFile(out, ibk, 10);
 		out.close();
 	}
 	
@@ -191,6 +233,14 @@ public class ChessSet {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		
+		out = new PrintWriter("SMOTrainingFNR.dat");
+		outputFNRForTrainingSetToFile(out, smo, 9);
+		out.close();
+		
+		out = new PrintWriter("SMOTestFNR.dat");
+		outputFNRForTestSetToFile(out, smo, 9);
+		out.close();
 	}
 	
 	public void SMOTrainingRBFKernel() throws Exception{
@@ -223,6 +273,14 @@ public class ChessSet {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		
+		out = new PrintWriter("SMORBFTrainingFNR.dat");
+		outputFNRForTrainingSetToFile(out, smo, 9);
+		out.close();
+		
+		out = new PrintWriter("SMORBFTestFNR.dat");
+		outputFNRForTestSetToFile(out, smo, 9);
+		out.close();
 	}
 	
 	public void boosting() throws Exception{
@@ -252,6 +310,14 @@ public class ChessSet {
 			eval.evaluateModel(ada, test);
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
+		out.close();
+		
+		out = new PrintWriter("ADATrainingFNR.dat");
+		outputFNRForTrainingSetToFile(out, ada, 10);
+		out.close();
+		
+		out = new PrintWriter("ADATestFNR.dat");
+		outputFNRForTestSetToFile(out, ada, 10);
 		out.close();
 	}
 	
@@ -366,12 +432,12 @@ public class ChessSet {
 		//cs.IBKTraining();
 		//cs.SMOTrainingPolyKernel();
 		//cs.SMOTrainingRBFKernel();
-		//cs.boosting();
+		cs.boosting();
 		
 		//stuff below this is for complexity model
 		//cs.decisionTreeNodeChanger();
 		//cs.changeKForIBK();
-		cs.changeHiddenLayersANN();
+		//cs.changeHiddenLayersANN();
 
 	}
 
