@@ -17,6 +17,7 @@ import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.Debug.Random;
 import weka.filters.Filter;
 import weka.filters.unsupervised.instance.RemovePercentage;
 
@@ -45,6 +46,42 @@ public class TicTacToe {
 		data.setClassIndex(data.numAttributes() - 1);
 		return data;
 	}
+	
+	public Evaluation returnCrossVal(Classifier cls) throws Exception{
+		Instances train = returnTrainingSet();
+		cls.buildClassifier(train);
+		Evaluation eval = new Evaluation(train);
+		eval.crossValidateModel(cls, train, 10, new Random(1));
+		//PrintWriter out = new PrintWriter("Comp" + "DecTreeTrainingFPR.dat");
+		//return eval.falsePositiveRate(0);
+		return eval;
+	}
+	
+	public void outputFNRForTestSetToFile(PrintWriter out, Classifier cls, int iter) throws Exception{
+		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
+		for (int i=9; i>-1; i--){
+			int index = 10-i;
+			Instances newData = setPercent(train, i);
+			cls.buildClassifier(newData);
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(cls, test);
+			out.println(index*10 + "\t" + eval.falseNegativeRate(0));
+		}
+	}
+	
+	public void outputFNRForTrainingSetToFile(PrintWriter out, Classifier cls, int iter) throws Exception {
+		for (int i = iter; i > -1; i--) {
+			Instances train = returnTrainingSet();
+			int index = 10 - i;
+			Instances newData = setPercent(train, i);
+			cls.buildClassifier(newData);
+			Evaluation eval = new Evaluation(newData);
+			eval.evaluateModel(cls, newData);
+			out.println(index * 10 + "\t" + eval.falseNegativeRate(0));
+		}
+	}
+	
 	
 	public void DecisionTreeTraining() throws Exception {
 		Instances train = returnTrainingSet();
@@ -122,6 +159,13 @@ public class TicTacToe {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		out = new PrintWriter("ANNTrainingFNRTic.dat");
+		outputFNRForTrainingSetToFile(out, mlp, 9);
+		out.close();
+		
+		out = new PrintWriter("ANNTestFNRTic.dat");
+		outputFNRForTestSetToFile(out, mlp, 9);
+		out.close();
 	}
 	
 	public void IBKTraining() throws Exception{
@@ -147,6 +191,13 @@ public class TicTacToe {
 			eval.evaluateModel(ibk, test);
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
+		out.close();
+		out = new PrintWriter("IBKTrainingFNRTic.dat");
+		outputFNRForTrainingSetToFile(out, ibk, 10);
+		out.close();
+		
+		out = new PrintWriter("IBKTestTic.dat");
+		outputFNRForTestSetToFile(out, ibk, 10);
 		out.close();
 	}
 	
@@ -180,6 +231,13 @@ public class TicTacToe {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		out = new PrintWriter("SMOTrainingFNRTic.dat");
+		outputFNRForTrainingSetToFile(out, smo, 9);
+		out.close();
+		
+		out = new PrintWriter("SMOTestFNRTic.dat");
+		outputFNRForTestSetToFile(out, smo, 9);
+		out.close();
 	}
 	
 	public void SMOTrainingRBFKernel() throws Exception{
@@ -212,6 +270,13 @@ public class TicTacToe {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
+		out = new PrintWriter("SMORBFTrainingTic.dat");
+		outputFNRForTrainingSetToFile(out, smo, 9);
+		out.close();
+		
+		out = new PrintWriter("SMORBFTestFNRTic.dat");
+		outputFNRForTestSetToFile(out, smo, 9);
+		out.close();
 	}
 	
 	public void boosting() throws Exception{
@@ -241,7 +306,15 @@ public class TicTacToe {
 			eval.evaluateModel(ada, test);
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
+		out.close();		
+		out = new PrintWriter("ADATrainingFNRTic.dat");
+		outputFNRForTrainingSetToFile(out, ada, 10);
 		out.close();
+		
+		out = new PrintWriter("ADATestFNRTic.dat");
+		outputFNRForTestSetToFile(out, ada, 10);
+		out.close();
+	
 	}
 	
 	public Instances setPercent(Instances train, int removeAmount) throws Exception {
@@ -255,9 +328,123 @@ public class TicTacToe {
 
 	}
 
-	public void decisionTreeNodeChanger(){
+	public void decisionTreeNodeChanger() throws Exception{
+		//PrintWriter out = new PrintWriter("SMORBFTrainingFPR.dat");
+		double[] treeSize = new double[10];
+		double prevTreeSize = 0;
+		int count = 0;
+		double[] FPR = new double[10];
+		double[] FPRCrossEval = new double[10];
+		double[] FNR = new double[10];
+		double[] FNRCrossEval = new double[10];
+		boolean done = false;
+		Integer j = new Integer(0);
+		Instances train = returnTrainingSet();
+		J48 cls = new J48();
+		String[] options = new String[2];
 		
+		while(count<10){
+			j=j+4;
+			options[0] = "-M";
+			options[1] = j.toString();
+			System.out.println(options[1]);
+			cls.setOptions(options);
+			cls.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(cls, train);
+			Evaluation crossEval = returnCrossVal(cls);
+	
+			if (prevTreeSize != cls.measureTreeSize()){
+				System.out.println("got in");
+				treeSize[count] = cls.measureTreeSize();
+				FPR[count] = eval.falsePositiveRate(0);
+				FPRCrossEval[count] = crossEval.falsePositiveRate(0);
+				FNR[count] = eval.falseNegativeRate(0);
+				FNRCrossEval[count] = crossEval.falseNegativeRate(0);
+				prevTreeSize = cls.measureTreeSize();
+				count++;
+			}
+			
+			if (count == 9 && !done){
+				PrintWriter out = new PrintWriter("CompDecTreeTrainingFPRTic.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FPR[i]);
+				}
+				out.close();
+				out = new PrintWriter("CompDecTreeTestFPRTic.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FPRCrossEval[i]);
+				}
+				out.close();
+				out = new PrintWriter("CompDecTreeTrainingFNRTic.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FNR[i]);
+				}
+				out.close();
+				out = new PrintWriter("CompDecTreeTestFNRTic.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FNRCrossEval[i]);
+				}
+				out.close();
+				done = true;
+			}	
+		}			
 	}
+	
+	public void changeKForIBK() throws Exception{
+		Integer j = new Integer(0);
+		Instances train = returnTrainingSet();
+		String[] options = new String[2];
+		IBk ibk = new IBk();
+		PrintWriter out = new PrintWriter("CompIBKTrainingFPRTic.dat");
+		PrintWriter outCross = new PrintWriter("CompIBKTestFPRTic.dat");
+		PrintWriter outFNR = new PrintWriter("CompIBKTrainingFNRTic.dat");
+		PrintWriter outCrossFNR = new PrintWriter("CompIBKTestFNRTic.dat");
+
+		for (int i=1; i<10; i++){
+			j = i;
+			options[0] = "-K";
+			options[1] = j.toString();
+			ibk.setOptions(options);
+			ibk.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(ibk, train);
+			Evaluation crossEval = returnCrossVal(ibk);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
+	
+	public void changeHiddenLayersANN()  throws Exception{
+		Instances train = returnTrainingSet();
+		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
+		PrintWriter out = new PrintWriter("CompANNTrainingFPRTic.dat");
+		PrintWriter outCross = new PrintWriter("CompANNTestFPRTic.dat");
+		PrintWriter outFNR = new PrintWriter("CompANNTrainingFNRTic.dat");
+		PrintWriter outCrossFNR = new PrintWriter("CompANNTestFNRTic.dat");
+		for (int i=0; i<10; i++){
+			mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -N 100 -V 0 -S 0 -E 20 -H " + i));
+			mlp.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(mlp, train);
+			Evaluation crossEval = returnCrossVal(mlp);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
+
 	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
@@ -268,6 +455,11 @@ public class TicTacToe {
 		cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();
 		cs.boosting();
+		
+		//stuff below this is for complexity model
+		//cs.decisionTreeNodeChanger();
+		//cs.changeKForIBK();
+		cs.changeHiddenLayersANN();
 	}
 
 }
