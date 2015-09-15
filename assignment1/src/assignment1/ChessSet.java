@@ -339,6 +339,8 @@ public class ChessSet {
 		int count = 0;
 		double[] FPR = new double[10];
 		double[] FPRCrossEval = new double[10];
+		double[] FNR = new double[10];
+		double[] FNRCrossEval = new double[10];
 		boolean done = false;
 		Integer j = new Integer(0);
 		Instances train = returnTrainingSet();
@@ -361,6 +363,8 @@ public class ChessSet {
 				treeSize[count] = cls.measureTreeSize();
 				FPR[count] = eval.falsePositiveRate(0);
 				FPRCrossEval[count] = crossEval.falsePositiveRate(0);
+				FNR[count] = eval.falseNegativeRate(0);
+				FNRCrossEval[count] = crossEval.falseNegativeRate(0);
 				prevTreeSize = cls.measureTreeSize();
 				count++;
 			}
@@ -376,6 +380,16 @@ public class ChessSet {
 					out.println(treeSize[i] + "\t" + FPRCrossEval[i]);
 				}
 				out.close();
+				out = new PrintWriter("CompDecTreeTrainingFNR.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FNR[i]);
+				}
+				out.close();
+				out = new PrintWriter("CompDecTreeTestFNR.dat");
+				for (int i=9; i>-1; i--){	
+					out.println(treeSize[i] + "\t" + FNRCrossEval[i]);
+				}
+				out.close();
 				done = true;
 			}	
 		}			
@@ -388,6 +402,8 @@ public class ChessSet {
 		IBk ibk = new IBk();
 		PrintWriter out = new PrintWriter("CompIBKTrainingFPR.dat");
 		PrintWriter outCross = new PrintWriter("CompIBKTestFPR.dat");
+		PrintWriter outFNR = new PrintWriter("CompIBKTrainingFNR.dat");
+		PrintWriter outCrossFNR = new PrintWriter("CompIBKTestFNR.dat");
 
 		for (int i=1; i<10; i++){
 			j = i;
@@ -400,9 +416,13 @@ public class ChessSet {
 			Evaluation crossEval = returnCrossVal(ibk);
 			out.println(i + "\t" + eval.falsePositiveRate(0));
 			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
 		}
 		out.close();
 		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
 	}
 	
 	public void changeHiddenLayersANN()  throws Exception{
@@ -410,6 +430,8 @@ public class ChessSet {
 		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
 		PrintWriter out = new PrintWriter("CompANNTrainingFPR.dat");
 		PrintWriter outCross = new PrintWriter("CompANNTestFPR.dat");
+		PrintWriter outFNR = new PrintWriter("CompANNTrainingFNR.dat");
+		PrintWriter outCrossFNR = new PrintWriter("CompANNTestFNR.dat");
 		for (int i=0; i<10; i++){
 			mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -N 100 -V 0 -S 0 -E 20 -H " + i));
 			mlp.buildClassifier(train); 
@@ -418,10 +440,13 @@ public class ChessSet {
 			Evaluation crossEval = returnCrossVal(mlp);
 			out.println(i + "\t" + eval.falsePositiveRate(0));
 			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
-			
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
 		}
 		out.close();
 		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -432,13 +457,11 @@ public class ChessSet {
 		//cs.IBKTraining();
 		//cs.SMOTrainingPolyKernel();
 		//cs.SMOTrainingRBFKernel();
-		cs.boosting();
+		//cs.boosting();
 		
 		//stuff below this is for complexity model
 		//cs.decisionTreeNodeChanger();
 		//cs.changeKForIBK();
-		//cs.changeHiddenLayersANN();
-
+		cs.changeHiddenLayersANN();
 	}
-
 }
