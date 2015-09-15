@@ -452,16 +452,16 @@ public class ChessSet {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ChessSet cs = new ChessSet();
-		//cs.DecisionTreeTraining();
-		//cs.ANNTraining();
-		//cs.IBKTraining();
-		//cs.SMOTrainingPolyKernel();
-		//cs.SMOTrainingRBFKernel();
-		//cs.boosting();
+		cs.DecisionTreeTraining();
+		cs.ANNTraining();
+		cs.IBKTraining();
+		cs.SMOTrainingPolyKernel();
+		cs.SMOTrainingRBFKernel();
+		cs.boosting();
 		
 		//stuff below this is for complexity model
 		//cs.decisionTreeNodeChanger();
 		//cs.changeKForIBK();
-		cs.changeHiddenLayersANN();
+		//cs.changeHiddenLayersANN();
 	}
 }

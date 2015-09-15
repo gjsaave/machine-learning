@@ -110,7 +110,7 @@ public class TicTacToe {
 		}
 		out.close();
 
-		out = new PrintWriter("DecTreeTrainingFNR.dat");
+		out = new PrintWriter("DecTreeTrainingFNRTic.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
 			Instances newData = setPercent(train, i);
@@ -121,7 +121,7 @@ public class TicTacToe {
 		}
 		out.close();
 
-		out = new PrintWriter("DecTreeTestFNR.dat");
+		out = new PrintWriter("DecTreeTestFNRTic.dat");
 		for (int i=10; i>-1; i--){
 			int index = 10-i;
 			Instances newData = setPercent(train, i);
@@ -196,7 +196,7 @@ public class TicTacToe {
 		outputFNRForTrainingSetToFile(out, ibk, 10);
 		out.close();
 		
-		out = new PrintWriter("IBKTestTic.dat");
+		out = new PrintWriter("IBKTestFNRTic.dat");
 		outputFNRForTestSetToFile(out, ibk, 10);
 		out.close();
 	}
@@ -270,7 +270,7 @@ public class TicTacToe {
 			out.println(index*10 + "\t" + eval.falsePositiveRate(0));
 		}
 		out.close();
-		out = new PrintWriter("SMORBFTrainingTic.dat");
+		out = new PrintWriter("SMORBFTrainingFNRTic.dat");
 		outputFNRForTrainingSetToFile(out, smo, 9);
 		out.close();
 		
@@ -449,17 +449,17 @@ public class TicTacToe {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		TicTacToe cs = new TicTacToe();
-		cs.DecisionTreeTraining();
-		cs.ANNTraining();
-		cs.IBKTraining();
-		cs.SMOTrainingPolyKernel();
+		//cs.DecisionTreeTraining();
+		//cs.ANNTraining();
+		//cs.IBKTraining();
+		//cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();
-		cs.boosting();
+		//cs.boosting();
 		
 		//stuff below this is for complexity model
 		//cs.decisionTreeNodeChanger();
 		//cs.changeKForIBK();
-		cs.changeHiddenLayersANN();
+		//cs.changeHiddenLayersANN();
 	}
 
 }
