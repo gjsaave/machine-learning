@@ -344,7 +344,7 @@ public class TicTacToe {
 		String[] options = new String[2];
 		
 		while(count<10){
-			j=j+4;
+			j=j+1;
 			options[0] = "-M";
 			options[1] = j.toString();
 			System.out.println(options[1]);
@@ -353,6 +353,7 @@ public class TicTacToe {
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cls, train);
 			Evaluation crossEval = returnCrossVal(cls);
+			System.out.println(cls.measureTreeSize());
 	
 			if (prevTreeSize != cls.measureTreeSize()){
 				System.out.println("got in");
@@ -449,17 +450,17 @@ public class TicTacToe {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		TicTacToe cs = new TicTacToe();
-		//cs.DecisionTreeTraining();
-		//cs.ANNTraining();
-		//cs.IBKTraining();
-		//cs.SMOTrainingPolyKernel();
+		cs.DecisionTreeTraining();
+		cs.ANNTraining();
+		cs.IBKTraining();
+		cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();
-		//cs.boosting();
+		cs.boosting();
 		
 		//stuff below this is for complexity model
-		//cs.decisionTreeNodeChanger();
-		//cs.changeKForIBK();
-		//cs.changeHiddenLayersANN();
+		cs.decisionTreeNodeChanger();
+		cs.changeKForIBK();
+		cs.changeHiddenLayersANN();
 	}
 
 }

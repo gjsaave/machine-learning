@@ -460,8 +460,8 @@ public class ChessSet {
 		cs.boosting();
 		
 		//stuff below this is for complexity model
-		//cs.decisionTreeNodeChanger();
-		//cs.changeKForIBK();
-		//cs.changeHiddenLayersANN();
+		cs.decisionTreeNodeChanger();
+		cs.changeKForIBK();
+		cs.changeHiddenLayersANN();
 	}
 }
