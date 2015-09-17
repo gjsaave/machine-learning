@@ -448,11 +448,66 @@ public class ChessSet {
 		outFNR.close();
 		outCrossFNR.close();
 	}
+	
+	public void numIterationsforBoosting() throws Exception{
+		Integer j = new Integer(0);
+		Instances train = returnTrainingSet();
+		AdaBoostM1 ada = new AdaBoostM1();
+		String[] options = new String[4];
+		PrintWriter out = new PrintWriter("NumIterADATrainingFPR.dat");
+		PrintWriter outCross = new PrintWriter("NumIterADATestFPR.dat");
+		PrintWriter outFNR = new PrintWriter("NumIterADATrainingFNR.dat");
+		PrintWriter outCrossFNR = new PrintWriter("NumIterADATestFNR.dat");
+		for (int i = 1; i < 11; i++) {
+			j = i;
+			options[0] = "-W";
+			options[1] = "weka.classifiers.trees.J48";
+			options[2] = "-I";
+			options[3] = j.toString();
+			ada.setOptions(options);
+			ada.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(ada, train);
+			Evaluation crossEval = returnCrossVal(ada);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
+	
+	public void changeNumberOfEpochsANN()  throws Exception{
+		Instances train = returnTrainingSet();
+		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
+		PrintWriter out = new PrintWriter("NumEpochsANNTrainingFPR.dat");
+		PrintWriter outCross = new PrintWriter("NumEpochsANNTestFPR.dat");
+		PrintWriter outFNR = new PrintWriter("NumEpochsANNTrainingFNR.dat");
+		PrintWriter outCrossFNR = new PrintWriter("NumEpochsANNTestFNR.dat");
+		for (int i=1; i<11; i++){
+			mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -V 0 -S 0 -E 20 -H 2 -N " + i));
+			mlp.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(mlp, train);
+			Evaluation crossEval = returnCrossVal(mlp);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ChessSet cs = new ChessSet();
-		cs.DecisionTreeTraining();
+		/*cs.DecisionTreeTraining();
 		cs.ANNTraining();
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
@@ -462,6 +517,8 @@ public class ChessSet {
 		//stuff below this is for complexity model
 		cs.decisionTreeNodeChanger();
 		cs.changeKForIBK();
-		cs.changeHiddenLayersANN();
+		cs.changeHiddenLayersANN();*/	
+		cs.numIterationsforBoosting();
+		cs.changeNumberOfEpochsANN();
 	}
 }

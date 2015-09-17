@@ -353,10 +353,8 @@ public class TicTacToe {
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cls, train);
 			Evaluation crossEval = returnCrossVal(cls);
-			System.out.println(cls.measureTreeSize());
 	
 			if (prevTreeSize != cls.measureTreeSize()){
-				System.out.println("got in");
 				treeSize[count] = cls.measureTreeSize();
 				FPR[count] = eval.falsePositiveRate(0);
 				FPRCrossEval[count] = crossEval.falsePositiveRate(0);
@@ -445,12 +443,68 @@ public class TicTacToe {
 		outFNR.close();
 		outCrossFNR.close();
 	}
+	
+	public void numIterationsforBoosting() throws Exception{
+		Integer j = new Integer(0);
+		Instances train = returnTrainingSet();
+		AdaBoostM1 ada = new AdaBoostM1();
+		String[] options = new String[4];
+		PrintWriter out = new PrintWriter("NumIterADATrainingFPRTic.dat");
+		PrintWriter outCross = new PrintWriter("NumIterADATestFPRTic.dat");
+		PrintWriter outFNR = new PrintWriter("NumIterADATrainingFNRTic.dat");
+		PrintWriter outCrossFNR = new PrintWriter("NumIterADATestFNRTic.dat");
+		for (int i = 1; i < 200; i++) {
+			j = i;
+			options[0] = "-W";
+			options[1] = "weka.classifiers.trees.J48";
+			options[2] = "-I";
+			options[3] = j.toString();
+			ada.setOptions(options);
+			ada.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(ada, train);
+			Evaluation crossEval = returnCrossVal(ada);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
+	
+	public void changeNumberOfEpochsANN()  throws Exception{
+		Instances train = returnTrainingSet();
+		MultilayerPerceptron mlp = new MultilayerPerceptron(); 
+		PrintWriter out = new PrintWriter("NumEpochsANNTrainingFPRTic.dat");
+		PrintWriter outCross = new PrintWriter("NumEpochsANNTestFPRTic.dat");
+		PrintWriter outFNR = new PrintWriter("NumEpochsANNTrainingFNRTic.dat");
+		PrintWriter outCrossFNR = new PrintWriter("NumEpochsANNTestFNRTic.dat");
+		for (int i=1; i<11; i++){
+			mlp.setOptions(Utils.splitOptions("-L 0.3 -M 0.2 -V 0 -S 0 -E 20 -H 2 -N " + i));
+			mlp.buildClassifier(train); 
+			Evaluation eval = new Evaluation(train);
+			eval.evaluateModel(mlp, train);
+			Evaluation crossEval = returnCrossVal(mlp);
+			out.println(i + "\t" + eval.falsePositiveRate(0));
+			outCross.println(i + "\t" + crossEval.falsePositiveRate(0));
+			outFNR.println(i + "\t" + eval.falseNegativeRate(0));
+			outCrossFNR.println(i + "\t" + crossEval.falseNegativeRate(0));
+		}
+		out.close();
+		outCross.close();
+		outFNR.close();
+		outCrossFNR.close();
+	}
+
 
 	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		TicTacToe cs = new TicTacToe();
-		cs.DecisionTreeTraining();
+		/*cs.DecisionTreeTraining();
 		cs.ANNTraining();
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
@@ -460,7 +514,9 @@ public class TicTacToe {
 		//stuff below this is for complexity model
 		cs.decisionTreeNodeChanger();
 		cs.changeKForIBK();
-		cs.changeHiddenLayersANN();
+		cs.changeHiddenLayersANN();*/
+		cs.numIterationsforBoosting();
+		//cs.changeNumberOfEpochsANN();
 	}
 
 }
