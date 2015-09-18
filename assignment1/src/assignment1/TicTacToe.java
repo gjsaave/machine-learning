@@ -283,9 +283,11 @@ public class TicTacToe {
 		Instances train = returnTrainingSet();
 		Instances test = returnTestSet();
 		AdaBoostM1 ada = new AdaBoostM1();
-		String[] options = new String[2];
+		String[] options = new String[4];
 		options[0] = "-W";
 		options[1] = "weka.classifiers.trees.J48";
+		options[2] = "-I";
+		options[3] = "200";
 		ada.setOptions(options);
 		PrintWriter out = new PrintWriter("ADATrainingFPRTic.dat");
 		for (int i=9; i>-1; i--){
@@ -508,14 +510,14 @@ public class TicTacToe {
 		cs.ANNTraining();
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
-		cs.SMOTrainingRBFKernel();
+		cs.SMOTrainingRBFKernel();*/
 		cs.boosting();
 		
 		//stuff below this is for complexity model
-		cs.decisionTreeNodeChanger();
-		cs.changeKForIBK();
-		cs.changeHiddenLayersANN();*/
-		cs.numIterationsforBoosting();
+		//cs.decisionTreeNodeChanger();
+		//cs.changeKForIBK();
+		//cs.changeHiddenLayersANN();
+		//cs.numIterationsforBoosting();
 		//cs.changeNumberOfEpochsANN();
 	}
 
