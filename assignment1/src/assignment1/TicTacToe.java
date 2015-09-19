@@ -342,19 +342,24 @@ public class TicTacToe {
 		boolean done = false;
 		Integer j = new Integer(0);
 		Instances train = returnTrainingSet();
+		Instances test = returnTestSet();
 		J48 cls = new J48();
-		String[] options = new String[2];
+		String[] options = new String[4];
 		
 		while(count<10){
 			j=j+1;
 			options[0] = "-M";
 			options[1] = j.toString();
+			options[2] = "-O";
+			options[3] = "-U";
 			System.out.println(options[1]);
 			cls.setOptions(options);
 			cls.buildClassifier(train); 
 			Evaluation eval = new Evaluation(train);
 			eval.evaluateModel(cls, train);
-			Evaluation crossEval = returnCrossVal(cls);
+			//Evaluation crossEval = returnCrossVal(cls);
+			Evaluation crossEval = new Evaluation(train);
+			crossEval.evaluateModel(cls,test);
 	
 			if (prevTreeSize != cls.measureTreeSize()){
 				treeSize[count] = cls.measureTreeSize();
@@ -511,10 +516,10 @@ public class TicTacToe {
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();*/
-		cs.boosting();
+		//cs.boosting();
 		
 		//stuff below this is for complexity model
-		//cs.decisionTreeNodeChanger();
+		cs.decisionTreeNodeChanger();
 		//cs.changeKForIBK();
 		//cs.changeHiddenLayersANN();
 		//cs.numIterationsforBoosting();

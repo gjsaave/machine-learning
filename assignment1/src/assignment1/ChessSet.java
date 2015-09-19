@@ -512,13 +512,13 @@ public class ChessSet {
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
 		cs.SMOTrainingRBFKernel();
-		cs.boosting();
+		cs.boosting();*/
 		
 		//stuff below this is for complexity model
 		cs.decisionTreeNodeChanger();
-		cs.changeKForIBK();
-		cs.changeHiddenLayersANN();*/	
-		cs.numIterationsforBoosting();
-		cs.changeNumberOfEpochsANN();
+		//cs.changeKForIBK();
+		//cs.changeHiddenLayersANN();*/	
+		//cs.numIterationsforBoosting();
+		//cs.changeNumberOfEpochsANN();
 	}
 }
