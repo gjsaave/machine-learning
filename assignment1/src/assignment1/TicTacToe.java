@@ -511,19 +511,19 @@ public class TicTacToe {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		TicTacToe cs = new TicTacToe();
-		//cs.DecisionTreeTraining();
-		/*cs.ANNTraining();
+		cs.DecisionTreeTraining();
+		cs.ANNTraining();
 		cs.IBKTraining();
 		cs.SMOTrainingPolyKernel();
-		cs.SMOTrainingRBFKernel();*/
-		//cs.boosting();
+		cs.SMOTrainingRBFKernel();
+		cs.boosting();
 		
 		//stuff below this is for complexity model
 		cs.decisionTreeNodeChanger();
-		//cs.changeKForIBK();
-		//cs.changeHiddenLayersANN();
-		//cs.numIterationsforBoosting();
-		//cs.changeNumberOfEpochsANN();
+		cs.changeKForIBK();
+		cs.changeHiddenLayersANN();
+		cs.numIterationsforBoosting();
+		cs.changeNumberOfEpochsANN();
 	}
 
 }
